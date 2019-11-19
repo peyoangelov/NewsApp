@@ -1,23 +1,45 @@
 package com.scalefocus.newsmp.domains;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.sql.Clob;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "ARTICLES")
 public class Article {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ARTICLES_SEQUENCE")
-    @SequenceGenerator(sequenceName = "ARTICLES_SEQUENCE", name = "ARTICLES_SEQUENCE", allocationSize = 1)
-    @Column(name = "ARTICLE_ID")
-    private Long id;
+    @GeneratedValue(generator = "uuid-string")
+    @GenericGenerator(
+            name = "uuid-string",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", nullable = false, unique = true, updatable = false)
+    private String id;
 
-    @ManyToOne(targetEntity = User.class)
-    private User creator;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private User user;
 
-    @ManyToOne(targetEntity = Category.class)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Category category;
 
     @Column(name = "IS_ACTIVE", columnDefinition = "DEFAULT 1 NOT NULL")
@@ -33,98 +55,16 @@ public class Article {
     private int rating;
 
     @Column(name = "TEXT")
+    @Lob
     private Clob text;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinTable(name = "ARTICLES_HASHTAGS",
-            joinColumns = @JoinColumn(name = "ARTICLE_ID"),
-            inverseJoinColumns = @JoinColumn(name = "HASHTAG_ID"))
-    private List<Hashtags> hashtags;
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "ARTICLES_HASHTAGS",
+            joinColumns = {@JoinColumn(name = "ARTICLE_ID")},
+            inverseJoinColumns = {@JoinColumn(name = "HASHTAG_ID")}
+    )
+    private List<Hashtags> hashtags = new ArrayList<Hashtags>();
 
 
-    public Article() {
-    }
-
-    public Article(User creator, Category category, Boolean isActive, String title, Timestamp createdOn, int rating, Clob text, List<Hashtags> hashtags) {
-        this.creator = creator;
-        this.category = category;
-        this.isActive = isActive;
-        this.title = title;
-        this.createdOn = createdOn;
-        this.rating = rating;
-        this.text = text;
-        this.hashtags = hashtags;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Timestamp getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
-    public Clob getText() {
-        return text;
-    }
-
-    public void setText(Clob text) {
-        this.text = text;
-    }
-
-    public List<Hashtags> getHashtags() {
-        return hashtags;
-    }
-
-    public void setHashtags(List<Hashtags> hashtags) {
-        this.hashtags = hashtags;
-    }
 }

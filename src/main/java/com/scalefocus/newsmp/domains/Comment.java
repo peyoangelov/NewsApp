@@ -1,21 +1,37 @@
 package com.scalefocus.newsmp.domains;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "COMMENTS")
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COMMENTS_SEQUENCE")
-    @SequenceGenerator(sequenceName = "COMMENTS_SEQUENCE", name = "COMMENTS_SEQUENCE", allocationSize = 1)
-    @Column(name = "COMMENT_ID")
-    private Long id;
-
+    @GeneratedValue(generator = "uuid-string")
+    @GenericGenerator(
+            name = "uuid-string",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", nullable = false, unique = true, updatable = false)
+    private String id;
     @Column(name = "USER_ID")
     private User commentator;
 
-    @ManyToOne(targetEntity = Article.class)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "article_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Article article;
 
     @Column(name = "IS_ACTIVE")
@@ -33,80 +49,5 @@ public class Comment {
     @Column(name = "TEXT")
     private String text;
 
-    public Comment() {
-    }
 
-    public Comment(User commentator, Article article, boolean isActive, Timestamp createdOn, int positiveVote, int negativeVote, String text) {
-        this.commentator = commentator;
-        this.article = article;
-        this.isActive = isActive;
-        this.createdOn = createdOn;
-        this.positiveVote = positiveVote;
-        this.negativeVote = negativeVote;
-        this.text = text;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getCommentator() {
-        return commentator;
-    }
-
-    public void setCommentator(User commentator) {
-        this.commentator = commentator;
-    }
-
-    public Article getArticle() {
-        return article;
-    }
-
-    public void setArticle(Article article) {
-        this.article = article;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public Timestamp getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public int getPositiveVote() {
-        return positiveVote;
-    }
-
-    public void setPositiveVote(int positiveVote) {
-        this.positiveVote = positiveVote;
-    }
-
-    public int getNegativeVote() {
-        return negativeVote;
-    }
-
-    public void setNegativeVote(int negativeVote) {
-        this.negativeVote = negativeVote;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
 }

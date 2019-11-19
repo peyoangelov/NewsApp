@@ -1,40 +1,27 @@
 package com.scalefocus.newsmp.domains;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "CATEGORIES")
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CATEGORIES_SEQUENCE")
-    @SequenceGenerator(sequenceName = "CATEGORIES_SEQUENCE", name = "CATEGORIES_SEQUENCE", allocationSize = 1)
-    @Column(name = "CATEGORY_ID")
-    private Long id;
-
+    @GeneratedValue(generator = "uuid-string")
+    @GenericGenerator(
+            name = "uuid-string",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", nullable = false, unique = true, updatable = false)
+    private String id;
     @Column(name = "CATEGORY_NAME")
     private String categoryName;
 
-    public Category() {
-
-    }
-
-    public Category(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
 }

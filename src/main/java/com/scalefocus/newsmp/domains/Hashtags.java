@@ -1,57 +1,35 @@
 package com.scalefocus.newsmp.domains;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "HASHTAGS")
 public class Hashtags {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "HASHTAGS_SEQUENCE")
-    @SequenceGenerator(sequenceName = "HASHTAGS_SEQUENCE", name = "HASHTAGS_SEQUENCE", allocationSize = 1)
-    @Column(name = "HASHTAG_ID")
-    private Long id;
+    @GeneratedValue(generator = "uuid-string")
+    @GenericGenerator(
+            name = "uuid-string",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", nullable = false, unique = true, updatable = false)
+    private String id;
 
     @Column(name = "HASHTAG_NAME")
     private String name;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinTable(name = "ARTICLES_HASHTAGS",
-            joinColumns = @JoinColumn(name = "ARTICLE_ID"),
-            inverseJoinColumns = @JoinColumn(name = "HASHTAG_ID"))
-    private List<Article> article;
+    @ManyToMany(mappedBy = "hashtags")
+    private List<Article> article = new ArrayList<Article>();
 
-
-    public Hashtags() {
-    }
-
-    public Hashtags(String name, List<Article> article) {
-        this.name = name;
-        this.article = article;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    public List<Article> getArticle() {
-        return article;
-    }
-
-    public void setArticle(List<Article> article) {
-        this.article = article;
-    }
 }

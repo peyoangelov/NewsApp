@@ -1,20 +1,39 @@
 package com.scalefocus.newsmp.domains;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.sql.Blob;
 import java.sql.Timestamp;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "PICTURES")
 public class Picture {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PICTURES_SEQUENCE")
-    @SequenceGenerator(sequenceName = "PICTURES_SEQUENCE", name = "PICTURES_SEQUENCE", allocationSize = 1)
-    @Column(name = "PICTURE_ID")
-    private Long id;
 
-    @ManyToOne(targetEntity = Article.class)
+    @Id
+    @GeneratedValue(generator = "uuid-string")
+    @GenericGenerator(
+            name = "uuid-string",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", nullable = false, unique = true, updatable = false)
+    private String id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "article_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Article article;
 
     @Column(name = "IS_ACTIVE")
@@ -27,64 +46,6 @@ public class Picture {
     private Timestamp dateCreated;
 
     @Column(name = "ITEM")
+    @Lob
     private Blob item;
-
-    public Picture() {
-    }
-
-    public Picture(Article article, Boolean isActive, String fileName, Timestamp dateCreated, Blob item) {
-        this.article = article;
-        this.isActive = isActive;
-        this.fileName = fileName;
-        this.dateCreated = dateCreated;
-        this.item = item;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Article getArticle() {
-        return article;
-    }
-
-    public void setArticle(Article article) {
-        this.article = article;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public Timestamp getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(Timestamp dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    public Blob getItem() {
-        return item;
-    }
-
-    public void setItem(Blob item) {
-        this.item = item;
-    }
 }
